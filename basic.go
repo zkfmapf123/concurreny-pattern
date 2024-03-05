@@ -1,6 +1,8 @@
 package main
 
-import "sync"
+import (
+	"sync"
+)
 
 var data = 0
 
@@ -30,6 +32,21 @@ func UseMutex(v int) int {
 	mutex.Lock()
 	data = v
 	mutex.Unlock()
+
+	return data
+}
+
+// WaitGroup을 사용한 방법
+func UseWaitGroup(v int) int {
+	var wait sync.WaitGroup
+
+	go func() {
+		defer wait.Done() // goroutine이 종료될때까지 대기
+		data = v
+	}()
+
+	wait.Add(1)
+	wait.Wait()
 
 	return data
 }
