@@ -23,9 +23,11 @@ func (c *Chekcer) Finish() {
 	c.elapsed = time.Since(c.t)
 }
 
-func (c *Chekcer) Result() {
-	red := "\033[31m"
-	reset := "\033[0m"
+func (c *Chekcer) GetTime() time.Duration {
+	return c.elapsed
+}
 
-	fmt.Printf("%sTime Duration: %s%s\n", red, c.elapsed, reset)
+func (c *Chekcer) Result(msg string) {
+
+	RedLogger(fmt.Sprintf("%s : %s", msg, c.elapsed))
 }

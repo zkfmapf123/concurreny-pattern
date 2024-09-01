@@ -15,7 +15,7 @@ func Test_badPattern(t *testing.T) {
 	basicBadPattern()
 	basicBadPattern()
 	timer.Finish()
-	timer.Result()
+	timer.Result("badpattern ")
 }
 
 func Test_goodPattern(t *testing.T) {
@@ -27,5 +27,5 @@ func Test_goodPattern(t *testing.T) {
 	basicGoodPattern()
 	basicGoodPattern()
 	timer.Finish()
-	timer.Result()
+	timer.Result("goodPattern ")
 }
