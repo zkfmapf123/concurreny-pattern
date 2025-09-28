@@ -1,85 +1,62 @@
-# Golang Concurreny-Pattern
+# Golang Concurrency Pattern
 
-## WaitGroup
+## Files 
 
-- 동시에 수행된 연산의 결과를 신경쓰지 않는 경우
-- 수행될 연산집합을 기다릴 경우 
+- [buffered](./buffered.go)
+- [select_pattern](./select_pattern.go)
+- [atomic](./atomic.go)
+- [context](./main.go)
 
-## ...
-- [간단한_병렬처리_패턴](./basic_pattern.go)
-- [뮤텍스를_이용한_카운터](./mutex_counter.go)
-- [고루틴_기초](./goroutine.go)
+## Bufferd , Unbuffered
 
-## Benchmark
-- [비교](./comparison.go)
-
-## ...
-
-```sh
-    ## 특정 테스트만...
-    go test -v -run Test_chan
-```
-
-## Chan Tips
-
-### Channel이 Close 되는 구간은 작업이 끝나는 메서드 내에서 진행되어야 함
+- Buffered - 송신자가 수신자를 기다리지 않음 (생산 > 소비)
+- UnBuffered - 송신자가 수신자를 기다림...
 
 ```go
-package concurrenypattern
-
-import "fmt"
-
-func createConsumer(cap int) chan int {
-
-	return make(chan int, cap)
+## unbuffered example
+func main() {
+    ch := make(chan string) // 언버퍼드
+    
+    go func() {
+        fmt.Println("고루틴: 데이터 보내는 중...")
+        ch <- "안녕"  // 여기서 대기! (받는 쪽이 받을 때까지)
+        fmt.Println("고루틴: 데이터 전송 완료!")
+    }()
+    
+    time.Sleep(3 * time.Second) // 3초 기다림
+    fmt.Println("메인: 이제 받을게!")
+    data := <-ch
+    fmt.Println("메인: 받은 데이터:", data)
 }
 
-// i에 값들이 push 된 후에 Channel은 작업이 완료되었음..
-func consumer(ch chan<- int, cap int) {
-
-	defer close(ch)  // 작업이 끝나면 닫아야함... Must Be
-	for i := 0; i < cap; i++ {
-		ch <- i
-	}
-
-}
-
-func execute() {
-	c := createConsumer(5)
-	consumer(c, 5)
-
-	for val := range c {
-		fmt.Println(val)
-	}
-
-}
+고루틴: 데이터 보내는 중...
+(3초 대기...)
+메인: 이제 받을게!
+고루틴: 데이터 전송 완료!
+메인: 받은 데이터: 안녕
+	
 ```
 
-### Select
-
-- 동시에 진행되는 것이 아님...
-- 순서를 보장하지 않지만 동시성을 제어함...
-
 ```go
-func selectRace() {
-
-	r1, r2 := make(chan string), make(chan string)
-	close(r1)
-	close(r2)
-
-	r1Count, r2Count := 0, 0
-
-	for i := 0; i < 1000; i++ {
-
-		select {
-		case <-r1:
-			r1Count++
-		case <-r2:
-			r2Count++
-		}
-	}
-
-	fmt.Printf("Race r1 : %d\tr2 : %d\n", r1Count, r2Count)
+## buffered example
+func main() {
+    ch := make(chan string, 1) // 버퍼 크기 1
+    
+    go func() {
+        fmt.Println("고루틴: 데이터 보내는 중...")
+        ch <- "안녕"  // 버퍼에 저장하고 바로 진행!
+        fmt.Println("고루틴: 데이터 전송 완료!")
+    }()
+    
+    time.Sleep(3 * time.Second) // 3초 기다림
+    fmt.Println("메인: 이제 받을게!")
+    data := <-ch
+    fmt.Println("메인: 받은 데이터:", data)
 }
 
+고루틴: 데이터 보내는 중...
+고루틴: 데이터 전송 완료!  ← 바로 완료!
+(3초 대기...)
+메인: 이제 받을게!
+메인: 받은 데이터: 안녕
 ```
