@@ -1,0 +1,5 @@
+package concurrenypattern
+
+func mainExecute() {
+
+}
