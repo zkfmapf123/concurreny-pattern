@@ -17,5 +17,8 @@ main-test:
 select-test:
 	go test -run Test_selectPatternExecute
 
+atomic-test:
+	go test -run Test_atomicExecute
+
 benchmakr-test:
 	go test -bench=. -cpu=1 <path>

@@ -1,15 +1,13 @@
 package concurrenypattern
 
-import (
-	"testing"
-)
+import "testing"
 
-func Test_mainExecute(t *testing.T) {
+func Test_atomicExecute(t *testing.T) {
 
 	done := make(chan bool)
 
 	go func() {
-		mainExecute()
+		atomicExecute()
 		done <- true
 	}()
 
